@@ -1,5 +1,7 @@
 package com.capgemini.UniversityCourseSelection.entities;
 
+import java.util.Objects;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -70,6 +70,33 @@ public class Applicant {
 		super();
 		status = AdmissionStatus.APPLIED;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(applicantDegree, applicantGraduationPercentage, applicantId, applicantName, mobileNumber,
+				password, status);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Applicant other = (Applicant) obj;
+		if(this.getApplicantId()==other.getApplicantId())
+			return true;
+		return Objects.equals(applicantDegree, other.applicantDegree)
+				&& Double.doubleToLongBits(applicantGraduationPercentage) == Double
+						.doubleToLongBits(other.applicantGraduationPercentage)
+				&& Objects.equals(applicantId, other.applicantId) && Objects.equals(applicantName, other.applicantName)
+				&& mobileNumber == other.mobileNumber && Objects.equals(password, other.password)
+				&& status == other.status;
+	}
+	
+	
 
 	// this is a comment to check integration
 

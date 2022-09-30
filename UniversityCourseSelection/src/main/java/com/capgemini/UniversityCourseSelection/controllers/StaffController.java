@@ -2,15 +2,20 @@ package com.capgemini.UniversityCourseSelection.controllers;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import com.capgemini.UniversityCourseSelection.entities.Course;
 import com.capgemini.UniversityCourseSelection.entities.UniversityStaffMember;
 import com.capgemini.UniversityCourseSelection.exception.NotFoundException;
+import com.capgemini.UniversityCourseSelection.exception.NotLoggedInException;
 import com.capgemini.UniversityCourseSelection.services.ICourseService;
 import com.capgemini.UniversityCourseSelection.services.IUniversityStaffService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +34,36 @@ public class StaffController {
 	@Autowired
 	private ICourseService courseService;
 	
+	private boolean checkSession(HttpServletRequest request,String type) {
+		HttpSession session =  request.getSession();
+
+		boolean validLogin = true;
+		if(session.isNew()) {
+			validLogin = false;
+		}
+		else {
+			int userId = (int) session.getAttribute(type);
+            if(userId!=0)
+            	validLogin=true;
+		}
+		return validLogin;
+	}
+	
+	private String getHostPort(HttpServletRequest request) {
+		StringBuffer url = request.getRequestURL();
+		String uri = request.getRequestURI();
+		String hostPort = url.delete(url.indexOf(uri), url.length()).toString();
+		return hostPort;
+	}
+	
 	@PostMapping("/add")
-	public ResponseEntity<UniversityStaffMember> addStaff(@RequestBody UniversityStaffMember staff) {
-		if(staff == null || staff.getStaffId() == null) {
+	public ResponseEntity<UniversityStaffMember> addStaff(@RequestBody UniversityStaffMember staff, HttpServletRequest request) {
+		if(!checkSession(request, "staffMember")) {
+			String host = getHostPort(request);			
+			throw new NotLoggedInException("Accessible to staff only. If you are a registered staff member, click "+host+"/login/staffMember to login.");
+		}
+		
+		if(staff == null) {
 			throw new NotFoundException("Staff record or ID cannot be null!");
 		}
 		UniversityStaffMember ref = staffService.addStaff(staff);
@@ -39,7 +71,12 @@ public class StaffController {
 	}
 	
 	@PutMapping("/update")
-	public ResponseEntity<UniversityStaffMember> updateStaff(@RequestBody UniversityStaffMember staff) {
+	public ResponseEntity<UniversityStaffMember> updateStaff(@RequestBody UniversityStaffMember staff, HttpServletRequest request) {
+		if(!checkSession(request, "staffMember")) {
+			String host = getHostPort(request);				
+			throw new NotLoggedInException("Accessible to staff only. If you are a registered staff member, click "+host+"/login/staffMember to login.");
+		}
+		
 		if(staff == null || staff.getStaffId() == null) {
 			throw new NotFoundException("Staff record or ID cannot be null!");
 		}
@@ -60,28 +97,49 @@ public class StaffController {
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public void removeStaff(@PathVariable int id) {
+	public ResponseEntity<String> removeStaff(@PathVariable int id, HttpServletRequest request) {
+		if(!checkSession(request, "staffMember")) {
+			String host = getHostPort(request);				
+			throw new NotLoggedInException("Accessible to staff only. If you are a registered staff member, click "+host+"/login/staffMember to login.");
+		}
 			staffService.removeStaff(id);
+			return new ResponseEntity<>("Staff with id: "+id+" deleted successfully!", HttpStatus.OK);
 	}
 	
 	@PostMapping("/course/add")
-	public ResponseEntity<Course> addCourse(@RequestBody Course course) {
-		if(course == null) {
+	public ResponseEntity<Course> addCourse(@RequestBody Course course, HttpServletRequest request) {
+		if(!checkSession(request, "staffMember")) {
+			String host = getHostPort(request);				
+			throw new NotLoggedInException("Accessible to staff only. If you are a registered staff member, click "+host+"/login/staffMember to login.");
+		}
+		
+		if(course == null || course.getCourseId() == null) {
 			throw new NotFoundException("Course record or ID cannot be null!");
 		}
 		return new ResponseEntity<>(courseService.addCourse(course),HttpStatus.OK);
 	}
 	
 	@PutMapping("/course/update")
-	public ResponseEntity<Course> updateCourse(@RequestBody Course course) {
-		if(course == null) {
+	public ResponseEntity<Course> updateCourse(@RequestBody Course course, HttpServletRequest request) {
+		if(!checkSession(request, "staffMember")) {
+			String host = getHostPort(request);				
+			throw new NotLoggedInException("Accessible to staff only. If you are a registered staff member, click "+host+"/login/staffMember to login.");
+		}
+		
+		if(course == null || course.getCourseId() == null) {
 			throw new NotFoundException("Course record or ID cannot be null!");
 		}
 		return new ResponseEntity<>(courseService.updateCourse(course),HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/course/delete/{id}")
-	public ResponseEntity<Course> deleteCourse(@PathVariable int id) {
-		return new ResponseEntity<>(courseService.removeCourse(id),HttpStatus.OK);
+	public ResponseEntity<String> deleteCourse(@PathVariable int id, HttpServletRequest request) {
+		if(!checkSession(request, "staffMember")) {
+			String host = getHostPort(request);				
+			throw new NotLoggedInException("Accessible to staff only. If you are a registered staff member, click "+host+"/login/staffMember to login.");
+		}
+		
+		courseService.removeCourse(id);
+		return new ResponseEntity<>("Course with id: "+id+" deleted successfully!",HttpStatus.OK);
 	}
 }

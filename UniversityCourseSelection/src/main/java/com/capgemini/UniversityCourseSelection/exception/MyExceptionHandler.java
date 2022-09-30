@@ -10,14 +10,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class MyExceptionHandler {
 
 	@ExceptionHandler(NotFoundException.class)
-	public ResponseEntity<?> handleNotFoundException(NotFoundException myException, WebRequest request){
+	public ResponseEntity<ExceptionDescription> handleNotFoundException(NotFoundException myException, WebRequest request){
 		ExceptionDescription descript = new ExceptionDescription(myException.getMessage(), request.getDescription(false));
 		
-		return new ResponseEntity<ExceptionDescription>(descript, HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<ExceptionDescription>(descript, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(NotLoggedInException.class)
+	public ResponseEntity<ExceptionDescription> handleNotLoggedInException(NotLoggedInException myException, WebRequest request){
+		ExceptionDescription descript = new ExceptionDescription(myException.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ExceptionDescription>(descript, HttpStatus.FORBIDDEN);
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> handleAnyException(Exception exception, WebRequest request){
+	public ResponseEntity<ExceptionDescription> handleAnyException(Exception exception, WebRequest request){
 		ExceptionDescription descript = new ExceptionDescription(exception.getMessage(), request.getDescription(false));
 		return new ResponseEntity<ExceptionDescription>(descript, HttpStatus.INTERNAL_SERVER_ERROR);
 	}

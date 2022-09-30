@@ -1,9 +1,8 @@
 package com.capgemini.UniversityCourseSelection.controllers;
 
-
 import com.capgemini.UniversityCourseSelection.entities.Applicant;
 import com.capgemini.UniversityCourseSelection.exception.NotFoundException;
-import com.capgemini.UniversityCourseSelection.repo.ILoginRepository;
+import com.capgemini.UniversityCourseSelection.exception.NotLoggedInException;
 import com.capgemini.UniversityCourseSelection.services.IApplicantService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,28 +29,27 @@ public class ApplicantController {
 
 	@Autowired
 	private IApplicantService service;
-//	
-//	@Autowired
-//	private ILoginRepository repo;
-	
-	private boolean checkSession(HttpServletRequest request,String type) {
-		HttpSession session =  request.getSession();
+
+	public boolean checkSession(HttpServletRequest request, String type) {
+		HttpSession session = request.getSession();
 
 		boolean validLogin = true;
-		if(session.isNew()) {
+		if (session.isNew()) {
 			validLogin = false;
-		}
-		else {
+		} else {
 			int userId = (int) session.getAttribute(type);
-            if(userId!=0)
-            	validLogin=true;
+			if (userId != 0)
+				validLogin = true;
 		}
-//		if(invalidLogin)
-//			
 		return validLogin;
 	}
 
-	
+	private String getHostPort(HttpServletRequest request) {
+		StringBuffer url = request.getRequestURL();
+		String uri = request.getRequestURI();
+		String hostPort = url.delete(url.indexOf(uri), url.length()).toString();
+		return hostPort;
+	}
 
 	@PostMapping("/apply")
 	public ResponseEntity<Applicant> applyForCourse(@RequestBody Applicant applicant) {
@@ -64,7 +62,7 @@ public class ApplicantController {
 
 	@PutMapping("/update")
 	public ResponseEntity<Applicant> updateApplication(@RequestBody Applicant applicant) {
-		if(applicant==null || applicant.getApplicantId()==null) {
+		if (applicant == null || applicant.getApplicantId() == null) {
 			throw new NotFoundException("Applicant or Id can't be null!");
 		}
 
@@ -75,14 +73,16 @@ public class ApplicantController {
 	}
 
 	@DeleteMapping("/delete")
-	public ResponseEntity<Applicant> deleteApplication(@RequestBody Applicant applicant,HttpServletRequest request) {
-		 boolean valid=checkSession(request,"commitee");
-			
-			if(!valid) {
-				return new ResponseEntity("Please Login to Access <a href = 'localhost:8080/login/commitee'>Login</a> ",HttpStatus.FORBIDDEN);
-				
-			}
-		if(applicant==null || applicant.getApplicantId()==null) {
+	public ResponseEntity<Applicant> deleteApplication(@RequestBody Applicant applicant, HttpServletRequest request) {
+		boolean valid = checkSession(request, "commitee");
+		String host = getHostPort(request);
+		if (!valid) {
+			throw new NotLoggedInException(
+					"Accessible to commitee members only. If you are a registered commitee member, click " + host
+							+ "/login/commitee to login.");
+
+		}
+		if (applicant == null || applicant.getApplicantId() == null) {
 			throw new NotFoundException("Applicant or Id can't be null!");
 		}
 		Applicant temp = service.deleteApplicant(applicant);
@@ -90,38 +90,31 @@ public class ApplicantController {
 
 	}
 
-	
 	@GetMapping("/get/{id}")
-	public ResponseEntity<Applicant> getById(@PathVariable("id") Integer id){
-		
-		Optional<Applicant> temp= service.viewApplicant(id);
-		if(temp.isEmpty()) {
-			return new ResponseEntity("No such user",HttpStatus.NOT_FOUND);
-					
+	public ResponseEntity<Applicant> getById(@PathVariable("id") Integer id) {
+
+		Optional<Applicant> temp = service.viewApplicant(id);
+		if (temp.isEmpty()) {
+			throw new NotFoundException("No user with given Id is present");
+
 		}
-		return new ResponseEntity<>(temp.get(),HttpStatus.OK);
+		return new ResponseEntity<>(temp.get(), HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/getAll/{status}")
-	public ResponseEntity<List<Applicant>> getAllApplicants(@PathVariable int status,HttpServletRequest request){
-        boolean valid=checkSession(request,"commitee");
-		
-		if(!valid) {
-			return new ResponseEntity("Please Login to Access <a href = 'localhost:8080/login/commitee'>Login</a> ",HttpStatus.FORBIDDEN);
-			
+	public ResponseEntity<List<Applicant>> getAllApplicants(@PathVariable int status, HttpServletRequest request) {
+		boolean valid = checkSession(request, "commitee");
+		String host = getHostPort(request);
+		if (!valid) {
+			throw new NotLoggedInException(
+					"Accessible to commitee members only. If you are a registered commitee member, click " + host
+							+ "/login/commitee to login.");
+
 		}
-		
-		List<Applicant> res= service.viewAllApplicantsByStatus(status);
-		return new ResponseEntity<>(res,HttpStatus.OK);
-		
+
+		List<Applicant> res = service.viewAllApplicantsByStatus(status);
+		return new ResponseEntity<>(res, HttpStatus.OK);
+
 	}
-	
-//	@PostMapping("/loginTest")
-//	@ResponseBody
-//	public ResponseEntity<String> loginTest(@RequestParam Integer id, @RequestParam String password){
-//		if(repo.verifyApplicantCredentials(id, password)) {
-//			return new ResponseEntity<String>("You are logged in",HttpStatus.OK);
-//		}
-//		return new ResponseEntity<>("Enter valid credentials please",HttpStatus.FORBIDDEN);
-//	}
+
 }

@@ -10,10 +10,12 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import lombok.Data;
 import lombok.ToString;
 
 @Entity
 @ToString
+@Data
 @Table(name = "admission_committee_member")
 public class AdmissionCommiteeMember {
 
@@ -31,8 +33,6 @@ public class AdmissionCommiteeMember {
 	@Column(name = "admin_username")
 	private String adminUsername;
 	
-	@JsonIgnore
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	@Column(name = "admin_password")
 	private String adminPassword;
 
