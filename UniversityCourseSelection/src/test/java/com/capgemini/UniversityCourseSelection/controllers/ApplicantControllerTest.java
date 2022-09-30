@@ -118,6 +118,9 @@ class ApplicantControllerTest {
 	@Test
 	void testGetById_success() throws Exception {
 		Mockito.when(service.viewApplicant(1)).thenReturn(Optional.ofNullable(app1));
+		
+		MockHttpSession session = new MockHttpSession();
+		session.setAttribute("applicant", 1);
 
 		String getBody = objectWriter.writeValueAsString(app1);
 

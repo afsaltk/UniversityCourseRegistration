@@ -5,7 +5,6 @@ import java.util.List;
 import com.capgemini.UniversityCourseSelection.entities.Course;
 import com.capgemini.UniversityCourseSelection.entities.UniversityStaffMember;
 import com.capgemini.UniversityCourseSelection.exception.NotFoundException;
-import com.capgemini.UniversityCourseSelection.repo.ICourseRepository;
 import com.capgemini.UniversityCourseSelection.repo.IUniversityStaffMemberRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

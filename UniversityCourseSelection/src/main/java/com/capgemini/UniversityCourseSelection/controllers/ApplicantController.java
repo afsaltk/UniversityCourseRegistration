@@ -44,13 +44,6 @@ public class ApplicantController {
 		return validLogin;
 	}
 
-	private String getHostPort(HttpServletRequest request) {
-		StringBuffer url = request.getRequestURL();
-		String uri = request.getRequestURI();
-		String hostPort = url.delete(url.indexOf(uri), url.length()).toString();
-		return hostPort;
-	}
-
 	@PostMapping("/apply")
 	public ResponseEntity<Applicant> applyForCourse(@RequestBody Applicant applicant) {
 
@@ -75,7 +68,7 @@ public class ApplicantController {
 	@DeleteMapping("/delete")
 	public ResponseEntity<Applicant> deleteApplication(@RequestBody Applicant applicant, HttpServletRequest request) {
 		boolean valid = checkSession(request, "commitee");
-		String host = getHostPort(request);
+		String host = String.valueOf(request.getServerPort());			
 		if (!valid) {
 			throw new NotLoggedInException(
 					"Accessible to commitee members only. If you are a registered commitee member, click " + host
@@ -91,12 +84,27 @@ public class ApplicantController {
 	}
 
 	@GetMapping("/get/{id}")
-	public ResponseEntity<Applicant> getById(@PathVariable("id") Integer id) {
+	public ResponseEntity<Applicant> getById(@PathVariable int id, HttpServletRequest request) {
+		
+		boolean valid=checkSession(request,"applicant")||checkSession(request,"commitee");
+		String host = String.valueOf(request.getServerPort());
+		if (!valid) {
+			throw new NotLoggedInException(
+					"Kindly login to view your details.  click " + host
+							+ "/login/applicant to login.");
+
+		}
+		HttpSession session=request.getSession();
+		
+		Integer attId= (Integer)session.getAttribute("applicant");
 
 		Optional<Applicant> temp = service.viewApplicant(id);
 		if (temp.isEmpty()) {
 			throw new NotFoundException("No user with given Id is present");
 
+		}
+		if((int)attId!=id) {
+		    temp.get().setPassword("*******");
 		}
 		return new ResponseEntity<>(temp.get(), HttpStatus.OK);
 	}
@@ -104,7 +112,7 @@ public class ApplicantController {
 	@GetMapping("/getAll/{status}")
 	public ResponseEntity<List<Applicant>> getAllApplicants(@PathVariable int status, HttpServletRequest request) {
 		boolean valid = checkSession(request, "commitee");
-		String host = getHostPort(request);
+		String host = String.valueOf(request.getServerPort());
 		if (!valid) {
 			throw new NotLoggedInException(
 					"Accessible to commitee members only. If you are a registered commitee member, click " + host

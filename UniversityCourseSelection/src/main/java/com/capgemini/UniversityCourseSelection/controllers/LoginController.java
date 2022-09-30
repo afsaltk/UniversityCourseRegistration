@@ -56,5 +56,23 @@ public class LoginController {
 		return new ResponseEntity<String>("Invalid Credentials", HttpStatus.FORBIDDEN);
 		
 	}
+	
+	@GetMapping("/logout")
+	public ResponseEntity<String> logoutAll(HttpServletRequest request){
+		HttpSession session = request.getSession();
+		
+		if(!session.getAttributeNames().asIterator().hasNext())
+		return new ResponseEntity<String>("You are already logged out",HttpStatus.METHOD_NOT_ALLOWED);
+		
+		try {
+		session.invalidate();
+		return new ResponseEntity<String>("Logged out Successfully",HttpStatus.OK);
+		}
+		catch(IllegalStateException ise) {
+			return new ResponseEntity<String>("You are already logged out",HttpStatus.METHOD_NOT_ALLOWED);
+		}
+		
+		
+	}
 
 }

@@ -1,9 +1,13 @@
 package com.capgemini.UniversityCourseSelection.controllers;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capgemini.UniversityCourseSelection.entities.Admission;
@@ -55,9 +60,26 @@ public class AdmissionController {
     
 	
 	
-	@GetMapping("/alladmissionby/{date}")
-    public ResponseEntity<List<Admission>> showAdmissionByDate(@PathVariable LocalDate date){
-		List<Admission> ref = service.showAllAdmissionbyDate(date);
+//	@GetMapping("/alladmissionbyDate/{date}")
+//    public ResponseEntity<List<Admission>> showAllAdmissionByDate(@RequestParam("localDate") @DateTimeFormat(pattern = "DD.MMM.YYYY") LocalDate date){
+////		DateTimeFormatter dTF = new DateTimeFormatterBuilder().parseCaseInsensitive()
+////	            .appendPattern("dd-MMM-yyyy")
+////	            .toFormatter();
+////		LocalDate date2  = LocalDate.parse(date.toString(),dTF);
+////		SimpleDateFormat format2 = new SimpleDateFormat("dd-MMM-yyyy");
+////		LocalDate date2 = LocalDate.parse(format2.format(date));
+//		List<Admission> ref = service.showAllAdmissionbyDate(date);
+//		return new ResponseEntity<>(ref, HttpStatus.OK);
+//	} 
+	
+	@GetMapping("/alladmissionbyDate/{date}/{month}/{year}")
+    public ResponseEntity<List<Admission>> showAllAdmissionByDate(@PathVariable int date,@PathVariable String month,@PathVariable int year){
+		DateTimeFormatter dTF = new DateTimeFormatterBuilder().parseCaseInsensitive()
+	            .appendPattern("dd-MMM-yyyy")
+	            .toFormatter();
+		String datestring  = String.valueOf(date)+"-"+month+"-"+String.valueOf(year);
+		LocalDate localdate  = LocalDate.parse(datestring,dTF);
+		List<Admission> ref = service.showAllAdmissionbyDate(localdate);
 		return new ResponseEntity<>(ref, HttpStatus.OK);
 	} 
     

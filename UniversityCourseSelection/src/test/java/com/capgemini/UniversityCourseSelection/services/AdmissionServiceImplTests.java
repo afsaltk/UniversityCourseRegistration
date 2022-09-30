@@ -44,7 +44,7 @@ class AdmissionServiceImplTests {
 	add1.setAdmissionDate(LocalDate.parse("10-Sep-2020",dTF));
 	add2.setAdmissionId(4);
 	add2.setApplicantId(5);
-	add2.setCourseId(6);
+	add2.setCourseId(100);
 	add2.setAdmissionDate(LocalDate.parse("10-Sep-2020",dTF));
 	add3.setAdmissionId(7);
 	add3.setApplicantId(8);
