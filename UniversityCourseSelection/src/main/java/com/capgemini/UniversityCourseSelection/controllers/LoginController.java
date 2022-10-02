@@ -23,11 +23,17 @@ public class LoginController {
 	@GetMapping("/applicant/{userName}/{password}")	
 	public ResponseEntity<String> applicantLogin(@PathVariable int userName, @PathVariable String password,
 			HttpServletRequest request) {
+		
+		Integer loggedUser = (Integer)request.getSession().getAttribute("applicant");
+		if(loggedUser != null && loggedUser == userName) {
+			return new ResponseEntity<String>("User already logged in!", HttpStatus.FORBIDDEN);
+		}
+		
 		if (loginService.loginAsApplicant(userName, password))
 		{
 			HttpSession session = request.getSession(true);
 			session.setAttribute("applicant", userName);
-			return new ResponseEntity<>("Login success",HttpStatus.OK);
+			return new ResponseEntity<>("Logged in successfully!",HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("Invalid Credentials", HttpStatus.FORBIDDEN);
 
@@ -35,11 +41,17 @@ public class LoginController {
 	@GetMapping("/staffMember/{userName}/{password}")	
 	public ResponseEntity<String> staffLogin(@PathVariable int userName, @PathVariable String password,
 			HttpServletRequest request) {
+		
+		Integer loggedUser = (Integer)request.getSession().getAttribute("staffMember");
+		if(loggedUser != null && loggedUser == userName) {
+			return new ResponseEntity<String>("User already logged in!", HttpStatus.FORBIDDEN);
+		}
+		
 		if (loginService.loginAsUniversityStaffMember(userName, password))
 		{
 			HttpSession session = request.getSession(true);
 			session.setAttribute("staffMember", userName);
-			return new ResponseEntity<>("Login success",HttpStatus.OK);
+			return new ResponseEntity<>("Logged in successfully!",HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("Invalid Credentials", HttpStatus.FORBIDDEN);
 		
@@ -47,11 +59,17 @@ public class LoginController {
 	@GetMapping("/commitee/{userName}/{password}")	
 	public ResponseEntity<String> commiteeLogin(@PathVariable int userName, @PathVariable String password,
 			HttpServletRequest request) {
+		
+		Integer loggedUser = (Integer)request.getSession().getAttribute("commitee");
+		if(loggedUser != null && loggedUser == userName) {
+			return new ResponseEntity<String>("User already logged in!", HttpStatus.FORBIDDEN);
+		}
+		
 		if (loginService.loginAsAdmissionCommiteeMember(userName, password))
 		{
 			HttpSession session = request.getSession(true);
 			session.setAttribute("commitee", userName);
-			return new ResponseEntity<>("Login success",HttpStatus.OK);
+			return new ResponseEntity<>("Logged in successfully!",HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("Invalid Credentials", HttpStatus.FORBIDDEN);
 		
@@ -62,16 +80,15 @@ public class LoginController {
 		HttpSession session = request.getSession();
 		
 		if(!session.getAttributeNames().asIterator().hasNext())
-		return new ResponseEntity<String>("You are already logged out",HttpStatus.METHOD_NOT_ALLOWED);
+			return new ResponseEntity<String>("You are already logged out!",HttpStatus.METHOD_NOT_ALLOWED);
 		
 		try {
 		session.invalidate();
-		return new ResponseEntity<String>("Logged out Successfully",HttpStatus.OK);
+		return new ResponseEntity<String>("Logged out Successfully!",HttpStatus.OK);
 		}
 		catch(IllegalStateException ise) {
-			return new ResponseEntity<String>("You are already logged out",HttpStatus.METHOD_NOT_ALLOWED);
+			return new ResponseEntity<String>("You are already logged out!",HttpStatus.METHOD_NOT_ALLOWED);
 		}
-		
 		
 	}
 

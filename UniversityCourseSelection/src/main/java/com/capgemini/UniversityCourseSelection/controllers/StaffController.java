@@ -1,6 +1,5 @@
 package com.capgemini.UniversityCourseSelection.controllers;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,11 +11,11 @@ import com.capgemini.UniversityCourseSelection.exception.NotFoundException;
 import com.capgemini.UniversityCourseSelection.exception.NotLoggedInException;
 import com.capgemini.UniversityCourseSelection.services.ICourseService;
 import com.capgemini.UniversityCourseSelection.services.IUniversityStaffService;
+import com.capgemini.UniversityCourseSelection.services.UniversityStaffServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,18 +35,17 @@ public class StaffController {
 	private ICourseService courseService;
 	
 	public boolean checkSession(HttpServletRequest request,String type) {
-		HttpSession session =  request.getSession();
-
-		boolean validLogin = true;
-		if(session.isNew()) {
-			validLogin = false;
+				
+		HttpSession session =  request.getSession(true);
+		
+		if(session.isNew()||session.getAttribute(type)==null) {
+			return false;
 		}
-		else {
-			int userId = (int) session.getAttribute(type);
-            if(userId!=0)
-            	validLogin=true;
+		int userId = (int)session.getAttribute(type);
+        if(userId==0) {
+            return false;
 		}
-		return validLogin;
+		return true;
 	}
 	
 	@PostMapping("/add")

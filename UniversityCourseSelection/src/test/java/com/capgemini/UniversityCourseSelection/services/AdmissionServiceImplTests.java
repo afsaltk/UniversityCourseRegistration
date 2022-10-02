@@ -20,12 +20,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.capgemini.UniversityCourseSelection.entities.Admission;
 import com.capgemini.UniversityCourseSelection.exception.NotFoundException;
 import com.capgemini.UniversityCourseSelection.repo.IAdmissionRepository;
+import com.capgemini.UniversityCourseSelection.repo.IApplicantRepository;
+import com.capgemini.UniversityCourseSelection.repo.ICourseRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AdmissionServiceImplTests {
 	
 	@Mock
 	private IAdmissionRepository admission_repo;
+	
+	@Mock
+	private ICourseRepository course_repo;
+	
+	@Mock
+	private IApplicantRepository applicant_repo;
 	
 	@InjectMocks
 	private AdmissionServiceImpl admission_service;
@@ -54,6 +62,8 @@ class AdmissionServiceImplTests {
 
 	@Test
 	void testAddAdmission_success() {
+		Mockito.when(applicant_repo.existsById(add1.getApplicantId())).thenReturn(true);
+		Mockito.when(course_repo.existsById(add1.getCourseId())).thenReturn(true);
 		Mockito.when(admission_repo.save(add1)).thenReturn(add1);
 		assertEquals(add1, admission_service.addAdmission(add1));
 	}
@@ -61,6 +71,8 @@ class AdmissionServiceImplTests {
 	
 	@Test
 	void testUpdateAdmission_success() {
+		Mockito.when(applicant_repo.existsById(add2.getApplicantId())).thenReturn(true);
+		Mockito.when(course_repo.existsById(add2.getCourseId())).thenReturn(true);
 		Mockito.when(admission_repo.save(add2)).thenReturn(add2);
 		Mockito.when(admission_repo.existsById(add2.getAdmissionId())).thenReturn(true);
 		assertEquals(add2, admission_service.updateAdmission(add2));
@@ -105,7 +117,7 @@ class AdmissionServiceImplTests {
 	
 	@Test
 	void testAddAdmission_failure() {
-		Mockito.when(admission_repo.save(add2)).thenThrow(new NotFoundException());
+		Mockito.when(applicant_repo.existsById(add2.getApplicantId())).thenReturn(false);
 		assertThrows(NotFoundException.class,()->{admission_service.addAdmission(add2);});
 	}
 	
@@ -113,10 +125,11 @@ class AdmissionServiceImplTests {
 	@Test
 	void testUpdateAdmission_failure() {
 		//Mockito.when(admission_repo.save(add2)).thenThrow(new NotFoundException());
-		Mockito.when(admission_repo.existsById(add2.getAdmissionId())).thenReturn(false);
+		Mockito.when(applicant_repo.existsById(add2.getApplicantId())).thenReturn(true);
+		Mockito.when(course_repo.existsById(add2.getCourseId())).thenReturn(false);
 		assertThrows(NotFoundException.class,()->{admission_service.updateAdmission(add2);});
 	}
-	
+	 
 	@Test
 	void testCancelAdmission_failure() {
 		Mockito.when(admission_repo.existsById(add1.getAdmissionId())).thenReturn(false);

@@ -55,7 +55,10 @@ public class UniversityStaffServiceImpl implements IUniversityStaffService{
 
 	@Override
 	public List<UniversityStaffMember> viewAllStaffs() {
-		return staffRepo.findAll();
+		List<UniversityStaffMember> usmList = staffRepo.findAll();
+		if(usmList.isEmpty())
+			throw new NotFoundException("No staff records found!");
+		return usmList;
 	}
 
 	@Override
