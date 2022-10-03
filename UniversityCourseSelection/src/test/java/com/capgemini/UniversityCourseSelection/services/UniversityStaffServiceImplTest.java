@@ -139,7 +139,7 @@ class UniversityStaffServiceImplTest {
 	void viewAllStaffs_failWhenNoRecords() {
 		List<UniversityStaffMember> res = new ArrayList<>();
 		Mockito.when(staffRepo.findAll()).thenReturn(res);
-		assertEquals(true, staffService.viewAllStaffs().isEmpty());
+		assertThrows(NotFoundException.class, ()-> staffService.viewAllStaffs());
 	}
 	
 }
