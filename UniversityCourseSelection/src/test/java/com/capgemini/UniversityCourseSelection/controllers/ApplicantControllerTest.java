@@ -88,12 +88,15 @@ class ApplicantControllerTest {
 	void updateStaff_success() throws Exception {
 		Applicant app4 = new Applicant();
 		app4.setApplicantId(4);
+		MockHttpSession session = new MockHttpSession();
+		
+		session.setAttribute("applicant", 4);
 
 		Mockito.when(service.updateApplicant(app4)).thenReturn(app4);
 
 		String updatedBody = objectWriter.writeValueAsString(app4);
 
-		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/applicant/update")
+		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.put("/applicant/update").session(session)
 				.contentType(MediaType.APPLICATION_JSON).content(updatedBody).accept(MediaType.APPLICATION_JSON);
 
 		mvc.perform(mockRequest).andExpect(status().isOk());
