@@ -59,9 +59,9 @@ class StaffControllerTest {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(staffController).build();
 	}
 	
-	UniversityStaffMember STAFF_1 = new UniversityStaffMember(1,"password1","role1");
-	UniversityStaffMember STAFF_2 = new UniversityStaffMember(2,"password2","role2");
-	UniversityStaffMember STAFF_3 = new UniversityStaffMember(3,"password3","role3");
+	UniversityStaffMember STAFF_1 = new UniversityStaffMember(1,"staff1","password1","role1");
+	UniversityStaffMember STAFF_2 = new UniversityStaffMember(2,"staff2","password2","role2");
+	UniversityStaffMember STAFF_3 = new UniversityStaffMember(3,"staff3","password3","role3");
 	
 	Course COURSE_1 = new Course(1,"Java Programming","2 months",LocalDate.of(2022,3,10),LocalDate.of(2022,5,10),"700",96.5);
 	
@@ -106,7 +106,7 @@ class StaffControllerTest {
 
 	@Test
 	void updateStaff_successWithLogin() throws Exception {
-		UniversityStaffMember updatedStaff = new UniversityStaffMember(1,"new_pwd","new_role");
+		UniversityStaffMember updatedStaff = new UniversityStaffMember(1,"new_staff","new_pwd","new_role");
 		
 		MockHttpSession session = new MockHttpSession();
 		session.setAttribute("staffMember", 1);
@@ -130,7 +130,7 @@ class StaffControllerTest {
 	
 	@Test
 	void updateStaff_failWhenNotFound() throws Exception {
-		UniversityStaffMember updatedStaff = new UniversityStaffMember(5,"new_pwd","new_role");
+		UniversityStaffMember updatedStaff = new UniversityStaffMember(5,"new_staff","new_pwd","new_role");
 		
 		MockHttpSession session = new MockHttpSession();
 		session.setAttribute("staffMember", 1);
@@ -152,7 +152,7 @@ class StaffControllerTest {
 	
 	@Test
 	void updateStaff_failWhenRecordOrIdIsNull() throws Exception {
-		UniversityStaffMember updatedStaff = new UniversityStaffMember(null,"new_pwd","new_role");
+		UniversityStaffMember updatedStaff = new UniversityStaffMember(null,"new_staff","new_pwd","new_role");
 		
 		MockHttpSession session = new MockHttpSession();
 		session.setAttribute("staffMember", 1);
@@ -203,15 +203,15 @@ class StaffControllerTest {
 	
 	@Test
 	void viewStaff_failWhenNotFound() throws Exception {
-		UniversityStaffMember viewStaff = new UniversityStaffMember(5,"password5","role5");
-		Mockito.when(staffService.viewStaff(viewStaff.getStaffId()))
-		.thenThrow(new NotFoundException("Staff with id: "+viewStaff.getStaffId()+" not found!"));
+		int id = 5;
+		Mockito.when(staffService.viewStaff(5))
+		.thenThrow(new NotFoundException("Staff with id: 5 not found!"));
 		
 		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/uni/staff/view/5")
 				.contentType(MediaType.APPLICATION_JSON);
 		
 		assertThatThrownBy(()-> mockMvc.perform(mockRequest))
-		.hasRootCause(new NotFoundException("Staff with id: "+viewStaff.getStaffId()+" not found!"));
+		.hasRootCause(new NotFoundException("Staff with id: 5 not found!"));
 	}
 
 	@Test
