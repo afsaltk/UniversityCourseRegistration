@@ -72,6 +72,10 @@ public class AdmissionCommitteeMemberServiceImpl implements IAdmissionCommiteeMe
 	@Override
 	public List<AdmissionCommiteeMember> viewAllCommitteeMembers() {
 		List<AdmissionCommiteeMember> l = repo.findAll();
+		if(l.isEmpty())
+		{
+			throw new NotFoundException("No commitee members found");
+		}
 		return l;
 	}
 
