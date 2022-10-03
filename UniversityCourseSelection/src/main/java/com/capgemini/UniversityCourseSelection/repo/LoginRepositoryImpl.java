@@ -24,7 +24,7 @@ public class LoginRepositoryImpl implements ILoginRepository {
 	
 	private void insertDefaultRecord(String type) {
 		if (type.equalsIgnoreCase("staff")) {
-			UniversityStaffMember usm = new UniversityStaffMember(1, "password", "role");
+			UniversityStaffMember usm = new UniversityStaffMember(1,"staff1","password", "role");
 			uniRepo.resetStaffIdSequence();
 			uniRepo.save(usm);
 		}

@@ -34,6 +34,8 @@ public class UniversityStaffMember {
 			strategy = GenerationType.SEQUENCE,
 			generator = "staff_sequence")
 	private Integer staffId;
+	@Column(name = "staff_name")
+	private String staffName;
 	private String password;
 	private String role;
 }

@@ -10,6 +10,7 @@ import com.capgemini.UniversityCourseSelection.entities.AdmissionStatus;
 import com.capgemini.UniversityCourseSelection.entities.Applicant;
 import com.capgemini.UniversityCourseSelection.exception.NotFoundException;
 import com.capgemini.UniversityCourseSelection.repo.IApplicantRepository;
+import com.capgemini.UniversityCourseSelection.repo.ICourseRepository;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ class ApplicantServiceImplTest {
 
 	@Mock
 	private IApplicantRepository apprepo;
+	
+	@Mock
+	private ICourseRepository courserepo;
 
 	@InjectMocks
 	private ApplicantServiceImpl appservice;
@@ -49,6 +53,8 @@ class ApplicantServiceImplTest {
 	@Test
 	void testAddApplicant_success() {
 		Mockito.when(apprepo.save(app1)).thenReturn(app1);
+		Mockito.when(courserepo.existsById(1)).thenReturn(true);
+		app1.getAdmission().setCourseId(1);
 		
 		
 
@@ -58,6 +64,9 @@ class ApplicantServiceImplTest {
 	@Test
 	void testUpdateApplicant_success() {
 		Mockito.when(apprepo.existsById(2)).thenReturn(true);
+		Mockito.when(courserepo.existsById(1)).thenReturn(true);
+		
+		app2.getAdmission().setCourseId(1);
 		Mockito.when(apprepo.save(app2)).thenReturn(app2);
 		assertEquals(app2, appservice.updateApplicant(app2));
 	}
@@ -99,18 +108,18 @@ class ApplicantServiceImplTest {
 
 	@Test
 	void testAddApplicant_failure() {
-		Mockito.when(apprepo.save(app3)).thenThrow(new IllegalArgumentException());
+//		Mockito.when(apprepo.save(app3)).thenThrow(new IllegalArgumentException());
 
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NotFoundException.class, () -> {
 			appservice.addApplicant(app3);
 		});
 	}
 
 	@Test
 	void testUpdateApplicant_failure() {
-		Mockito.when(apprepo.save(app3)).thenThrow(new IllegalArgumentException());
+//		Mockito.when(apprepo.save(app3)).thenThrow(new NotFoundException());
 
-		assertThrows(IllegalArgumentException.class, () -> {
+		assertThrows(NotFoundException.class, () -> {
 			appservice.addApplicant(app3);
 		});
 	}
